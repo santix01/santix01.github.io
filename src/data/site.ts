@@ -61,7 +61,7 @@ export const experience = [
   {
     period: { es: '2025', en: '2025' },
     title: { es: 'Monitor del curso de Inteligencia Artificial', en: 'Artificial Intelligence course teaching assistant' },
-    org: '', // ← institución del curso
+    org: 'E-Training · MinTIC',
     text: {
       es: 'Acompañamiento a los estudiantes del curso de IA: resolución de dudas y apoyo en el desarrollo de las prácticas.',
       en: 'Supported students in the AI course by answering questions and guiding their hands-on work.',
