@@ -1,6 +1,6 @@
 ---
 import { ui, projectHref, homeHref, type Lang } from '../i18n/ui';
-import { profile, certs, about } from '../data/site';
+import { profile, certs, skills } from '../data/site';
 import { projects, categories } from '../data/projects';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -31,7 +31,7 @@ const data = {
         'cat <proyecto>    resumen de un proyecto',
         'open <proyecto>   abre el caso completo',
         'certs             certificaciones verificables',
-        'skills            áreas de trabajo',
+        'skills            herramientas y plataformas',
         'contact           cómo contactarme',
         'cv                descarga mi CV',
         'lang              switch to English',
@@ -43,7 +43,7 @@ const data = {
         'cat <project>     project summary',
         'open <project>    open the full case',
         'certs             verifiable certifications',
-        'skills            focus areas',
+        'skills            tools and platforms',
         'contact           how to reach me',
         'cv                download my CV',
         'lang              cambiar a español',
@@ -59,7 +59,7 @@ const data = {
     href: projectHref(lang, p.slug),
   })),
   certs: certs.map((c) => c.name),
-  skills: about.focus.map((f) => f[lang]),
+  skills: skills.map((g) => `${g.group[lang]}: ${g.items.map((i) => (typeof i === 'string' ? i : i[lang])).join(', ')}`),
   links: { github: profile.links.github, linkedin: profile.links.linkedin },
   msg: {
     notFound: es ? 'comando no encontrado' : 'command not found',

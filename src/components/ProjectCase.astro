@@ -2,12 +2,22 @@
 import Base from '../layouts/Base.astro';
 import { ui, homeHref, projectHref, type Lang } from '../i18n/ui';
 import { projects, categories, type Project } from '../data/projects';
+import SamuraiDiagram from './diagrams/SamuraiDiagram.astro';
+import CryptostegoDiagram from './diagrams/CryptostegoDiagram.astro';
+import WriteupsDiagram from './diagrams/WriteupsDiagram.astro';
 interface Props { lang: Lang; project: Project }
 const { lang, project: p } = Astro.props;
 const t = ui[lang].project;
 const other: Lang = lang === 'es' ? 'en' : 'es';
 const idx = projects.findIndex((x) => x.slug === p.slug);
 const next = projects[(idx + 1) % projects.length];
+// Diagrama de arquitectura por proyecto (agrega uno nuevo aquí si creas otro componente)
+const diagrams: Record<string, any> = {
+  'samurai-shield': SamuraiDiagram,
+  cryptostego: CryptostegoDiagram,
+  'portswigger-writeups': WriteupsDiagram,
+};
+const Diagram = diagrams[p.slug];
 ---
 <Base lang={lang} title={p.title} description={p.summary[lang]} altHref={projectHref(other, p.slug)}>
   <article class="case">
@@ -39,7 +49,14 @@ const next = projects[(idx + 1) % projects.length];
           <p>{p.solution[lang]}</p>
         </section>
 
-        {p.flow && (
+        {Diagram && (
+          <section data-reveal class="case__wide">
+            <h2>{t.architecture}</h2>
+            <Diagram lang={lang} />
+          </section>
+        )}
+
+        {!Diagram && p.flow && (
           <section data-reveal>
             <h2>{t.flow}</h2>
             <ol class="flow">{p.flow.map((s) => <li>{s}</li>)}</ol>
@@ -103,7 +120,10 @@ const next = projects[(idx + 1) % projects.length];
   .case__aside { position: sticky; top: 100px; align-self: start; }
   .case__label { font: 500 var(--step--1)/1.4 var(--body); color: var(--muted); margin-bottom: 0.75rem; }
   .case__stack { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
-  .case__body { display: grid; gap: clamp(2.5rem, 5vw, 3.5rem); max-width: 68ch; }
+  .case__body { display: grid; gap: clamp(2.5rem, 5vw, 3.5rem); max-width: 860px; min-width: 0; }
+  .case__body > section:not(.case__wide) { max-width: 68ch; }
+  .case__wide { max-width: none; width: min(100%, 860px); }
+  .case__body > section { min-width: 0; }
   .case__body h2 { font-size: var(--step-2); margin-bottom: 1rem; }
   .case__body p { color: #c6d3dc; line-height: 1.7; }
 
@@ -129,7 +149,7 @@ const next = projects[(idx + 1) % projects.length];
   .case__next a:hover .case__next-title { color: var(--amber); }
 
   @media (max-width: 860px) {
-    .case__layout { grid-template-columns: 1fr; }
+    .case__layout { grid-template-columns: minmax(0, 1fr); }
     .case__aside { position: static; }
   }
 </style>

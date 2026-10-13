@@ -1,13 +1,17 @@
 ---
 import { ui, type Lang } from '../i18n/ui';
-import { about, experience, education } from '../data/site';
+import { about, experience, education, profile } from '../data/site';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const t = ui[lang];
+const cv = profile.cv[lang];
 ---
 <section id="perfil" class="section about" aria-labelledby="about-title">
   <div class="wrap about__grid">
     <div>
+      {profile.photo && (
+        <img class="about__photo" src={profile.photo} alt={profile.name} width="160" height="160" loading="lazy" decoding="async" data-reveal />
+      )}
       <h2 id="about-title" data-reveal>{t.about.title}</h2>
       <p class="about__lead" data-reveal>{about.lead[lang]}</p>
       <p class="about__body muted" data-reveal>{about.body[lang]}</p>
@@ -39,12 +43,18 @@ const t = ui[lang];
             <p class="tl__period">{e.period[lang]}</p>
             <div>
               <p class="tl__role">{e.title[lang]}</p>
-              <p class="tl__org">{e.org}</p>
+              {e.org && <p class="tl__org">{e.org}</p>}
               <p class="tl__text muted">{e.text[lang]}</p>
             </div>
           </li>
         ))}
       </ol>
+      <p class="tl__more" data-reveal>
+        <span class="muted">{t.experience.more}</span>
+        {cv
+          ? <a class="btn" href={cv} download>{t.experience.cv}</a>
+          : <a class="btn" href="#contacto">{t.experience.askCv}</a>}
+      </p>
     </div>
     <div class="timeline__col">
       <h3 class="timeline__title" data-reveal>{t.experience.education}</h3>
@@ -88,6 +98,13 @@ const t = ui[lang];
   .tl__role { font-weight: 600; }
   .tl__org { color: var(--amber); font-size: var(--step--1); font-weight: 500; }
   .tl__text { margin-top: 0.4rem; font-size: 0.95rem; max-width: 52ch; }
+  .tl__more { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; padding-left: 1.5rem; font-size: 0.95rem; }
+  .tl__more .btn { padding: 0.6rem 1rem; font-size: var(--step--1); }
+  .about__photo {
+    width: 128px; height: 128px; object-fit: cover; border-radius: 50%;
+    border: 1px solid var(--line); margin-bottom: 1.75rem;
+    box-shadow: 0 0 0 6px var(--bg), 0 0 0 7px rgba(240, 180, 76, 0.35);
+  }
   .edu { list-style: none; padding: 0; margin: 0; }
   .edu li { padding: 0 0 1.4rem; margin-bottom: 1.4rem; border-bottom: 1px solid var(--bg-3); }
   .edu__note { font-size: var(--step--1); }

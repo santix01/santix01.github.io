@@ -15,6 +15,8 @@ export const profile = {
   email: 'santiagoavendano15@gmail.com',
   // Deja vacío ('') para ocultar el botón. Ej: '/cv/santiago-avendano-cv-es.pdf'
   cv: { es: '', en: '' } as L,
+  // Foto de perfil. Ej: '/img/santiago.jpg' (cuadrada, mín. 600×600). Vacío = sin foto.
+  photo: '',
   links: {
     github: 'https://github.com/santix01',
     linkedin: 'https://www.linkedin.com/in/santiago-avenda%C3%B1o-l%C3%B3pez-172253248',
@@ -57,12 +59,12 @@ export const experience = [
     },
   },
   {
-    period: { es: '— 2026', en: '— 2026' },
-    title: { es: 'Apoyo en comunicaciones digitales', en: 'Digital communications support' },
-    org: 'Alcaldía de Miraflores',
+    period: { es: '2025', en: '2025' },
+    title: { es: 'Monitor del curso de Inteligencia Artificial', en: 'Artificial Intelligence course teaching assistant' },
+    org: '', // ← institución del curso
     text: {
-      es: 'Gestión de canales digitales y reportes para la administración municipal.',
-      en: 'Managed digital channels and reporting for the municipal administration.',
+      es: 'Acompañamiento a los estudiantes del curso de IA: resolución de dudas y apoyo en el desarrollo de las prácticas.',
+      en: 'Supported students in the AI course by answering questions and guiding their hands-on work.',
     },
   },
   {
@@ -79,21 +81,39 @@ export const experience = [
 // Educación. Sin imágenes de diplomas: "soportes disponibles bajo solicitud".
 export const education = [
   {
-    title: { es: 'Especialización — tesis en ISO 27001 / 27005', en: 'Postgraduate specialization — ISO 27001 / 27005 thesis' },
-    org: '', // ← nombre de la institución
-    note: { es: 'Calificación de tesis: 4.7 / 5.0', en: 'Thesis grade: 4.7 / 5.0' },
-  },
-  {
     title: { es: 'Ingeniería Electrónica', en: 'B.Eng. Electronic Engineering' },
-    org: 'UPTC — Sogamoso',
-    note: { es: '', en: '' },
+    org: 'Universidad Pedagógica y Tecnológica de Colombia (UPTC) — Sogamoso',
+    note: {
+      es: 'Tesis de grado meritoria en ISO 27001 / 27005 · calificación 4.7 / 5.0',
+      en: 'Undergraduate thesis awarded "meritoria" (distinction) on ISO 27001 / 27005 · grade 4.7 / 5.0',
+    },
   },
   {
-    title: { es: 'Título técnico', en: 'Technical degree' }, // ← nombre del programa
-    org: '', // ← institución
+    title: { es: 'Técnico en Instalación de Redes y Mantenimiento de Equipos de Cómputo', en: 'Technician in Network Installation and Computer Maintenance' },
+    org: 'Universidad Pedagógica y Tecnológica de Colombia (UPTC)',
     note: { es: '', en: '' },
   },
 ];
+
+// Herramientas y plataformas. Agrega o quita elementos libremente.
+export const skills = [
+  {
+    group: { es: 'Seguridad ofensiva', en: 'Offensive security' },
+    items: ['Caido', 'Hack The Box', 'PortSwigger Web Security Academy', 'Kali Linux', 'OWASP Top 10'],
+  },
+  {
+    group: { es: 'Detección y respuesta', en: 'Detection & response' },
+    items: ['Wazuh', 'XDR', { es: 'Análisis de logs', en: 'Log analysis' }, 'MITRE ATT&CK', 'auditd'],
+  },
+  {
+    group: { es: 'Sistemas y automatización', en: 'Systems & automation' },
+    items: ['Linux', 'Windows Server · Active Directory', 'Bash', 'Python', 'Git · GitHub'],
+  },
+  {
+    group: { es: 'Gobierno y cumplimiento', en: 'Governance & compliance' },
+    items: ['ISO/IEC 27001', 'ISO/IEC 27005', { es: 'Informes de auditoría', en: 'Audit reports' }, { es: 'Gestión de riesgos', en: 'Risk management' }],
+  },
+] as { group: L; items: (string | L)[] }[];
 
 export const certs = [
   { name: 'Cyber Threat Management', url: 'https://www.credly.com/badges/ef272be6-66fe-4183-a29a-a55381f1ba12/public_url', area: 'defense' },

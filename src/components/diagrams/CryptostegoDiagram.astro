@@ -1,0 +1,78 @@
+---
+import './diagram.css';
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const es = lang === 'es';
+---
+<div class="dg">
+  <div class="dg__panel">
+    <p class="dg__panel-title">{es ? 'Módulos del paquete' : 'Package modules'}</p>
+    <div class="mods">
+      <div class="mods__row"><div class="mod mod--root"><b>cli.py</b><span>{es ? 'Comandos embed, extract, detect, capacity' : 'embed, extract, detect, capacity commands'}</span></div></div>
+      <div class="mods__row mods__row--spaced"><div class="mod mod--root"><b>core.py</b><span>{es ? 'Orquesta: cifra primero, oculta después' : 'Orchestrates: encrypt first, hide second'}</span></div></div>
+      <div class="mods__row mods__row--spaced">
+        <div class="mod"><b>crypto/</b><span>kdf.py · aead.py<br />{es ? 'Argon2id + ChaCha20-Poly1305' : 'Argon2id + ChaCha20-Poly1305'}</span></div>
+        <div class="mod"><b>stego/</b><span>lsb.py · header.py · capacity.py<br />{es ? 'LSB matching y cabecera oculta' : 'LSB matching and hidden header'}</span></div>
+        <div class="mod"><b>analysis/</b><span>detect.py<br />{es ? 'Esteganálisis heurístico' : 'Heuristic steganalysis'}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dg__panel">
+    <p class="dg__panel-title">{es ? 'Qué pasa al ejecutar embed' : 'What embed does'}</p>
+    <ol class="dg__steps">
+      <li class="dg__step"><div>
+        <h4>{es ? 'Deriva la clave desde la contraseña' : 'Derives the key from the password'}<span class="dg__file">crypto/kdf.py</span></h4>
+        <p>{es ? 'Argon2id con salt aleatorio de 16 bytes, 64 MiB de memoria y 3 iteraciones: caro de atacar con GPU.' : 'Argon2id with a random 16-byte salt, 64 MiB of memory and 3 iterations: expensive to attack with GPUs.'}</p>
+      </div></li>
+      <li class="dg__step"><div>
+        <h4>{es ? 'Cifra y autentica' : 'Encrypts and authenticates'}<span class="dg__file">crypto/aead.py</span></h4>
+        <p>{es ? 'ChaCha20-Poly1305 con nonce único. El encabezado completo viaja como AAD: si alguien altera salt o versión, el descifrado falla.' : 'ChaCha20-Poly1305 with a unique nonce. The whole header is bound as AAD: tampering with salt or version makes decryption fail.'}</p>
+      </div></li>
+      <li class="dg__step"><div>
+        <h4>{es ? 'Elige dónde esconder cada bit' : 'Chooses where each bit goes'}<span class="dg__file">stego/lsb.py</span></h4>
+        <p>{es ? 'Un PRNG sembrado con la contraseña permuta todos los canales RGB. Sin la contraseña no se sabe ni dónde empieza la cabecera.' : 'A password-seeded PRNG permutes every RGB channel. Without the password you cannot even find where the header starts.'}</p>
+      </div></li>
+      <li class="dg__step"><div>
+        <h4>{es ? 'Oculta con LSB matching (±1)' : 'Hides with LSB matching (±1)'}<span class="dg__file">stego/lsb.py</span></h4>
+        <p>{es ? 'Si el bit no coincide, suma o resta 1 al azar en lugar de forzarlo. Así no deja la firma que detecta el ataque chi-cuadrado.' : 'When a bit does not match it randomly adds or subtracts 1 instead of forcing it, avoiding the signature the chi-square attack looks for.'}</p>
+      </div></li>
+      <li class="dg__step"><div>
+        <h4>{es ? 'Valida capacidad y guarda el PNG' : 'Checks capacity and saves the PNG'}<span class="dg__file">stego/capacity.py</span></h4>
+        <p>{es ? 'Si el payload no cabe, falla con un error que indica bytes disponibles y requeridos.' : 'If the payload does not fit, it fails with an error stating available vs required bytes.'}</p>
+      </div></li>
+    </ol>
+  </div>
+
+  <div class="dg__panel">
+    <p class="dg__panel-title">{es ? 'Formato del payload cifrado' : 'Encrypted payload format'}</p>
+    <div class="bytes">
+      <div style="--w:4"><b>CSG1</b><span>MAGIC · 4 B</span></div>
+      <div style="--w:2"><b>01</b><span>VER · 1 B</span></div>
+      <div style="--w:7"><b>SALT</b><span>16 B</span></div>
+      <div style="--w:6"><b>NONCE</b><span>12 B</span></div>
+      <div style="--w:12"><b>{es ? 'CIFRADO + TAG' : 'CIPHERTEXT + TAG'}</b><span>N + 16 B</span></div>
+    </div>
+    <div class="bytes__aad"><i style="--w:19">{es ? 'AAD: autenticado, no cifrado' : 'AAD: authenticated, not encrypted'}</i><u style="--w:12"></u></div>
+    <p class="dg__cap" style="margin-top:1rem">{es
+      ? 'Todo el bloque es indistinguible de ruido aleatorio antes de ocultarse en la imagen.'
+      : 'The whole block is indistinguishable from random noise before it is hidden in the image.'}</p>
+  </div>
+
+  <div class="dg__panel">
+    <p class="dg__panel-title">{es ? 'Modo detect: tres pruebas, un veredicto' : 'Detect mode: three tests, one verdict'}</p>
+    <div class="dg__cols">
+      <div>
+        <div class="score"><span>{es ? 'Proporción de LSB' : 'LSB ratio'}</span><span class="mono muted">{es ? '¿cerca de 50/50?' : 'close to 50/50?'}</span><div class="score__bar"><i style="--v:78%"></i></div></div>
+        <div class="score"><span>{es ? 'Chi-cuadrado de pares' : 'Pairs chi-square'}</span><span class="mono muted">Westfeld–Pfitzmann</span><div class="score__bar"><i style="--v:35%"></i></div></div>
+        <div class="score"><span>{es ? 'Entropía por bloques' : 'Block entropy'}</span><span class="mono muted">{es ? 'ruido en zonas lisas' : 'noise in flat areas'}</span><div class="score__bar"><i style="--v:70%"></i></div></div>
+        <div class="score__verdict"><span>{es ? 'Veredicto' : 'Verdict'}</span><span>0 – 100</span></div>
+      </div>
+      <p style="font-size:0.9rem;line-height:1.6;color:#b7c6d1;margin:0">{es
+        ? 'Cada prueba aporta un puntaje de 0 a 1 y el reporte explica cuál disparó la sospecha. Sirve para el lado defensivo: revisar si una imagen puede llevar datos ocultos.'
+        : 'Each test contributes a 0–1 score and the report explains which one raised suspicion. It serves the defensive side: checking whether an image may carry hidden data.'}</p>
+    </div>
+    <p class="dg__cap" style="margin-top:1rem">{es ? 'Barras ilustrativas.' : 'Illustrative bars.'}</p>
+  </div>
+</div>

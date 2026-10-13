@@ -1,0 +1,43 @@
+---
+import './diagram.css';
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const es = lang === 'es';
+---
+<div class="dg">
+  <div class="dg__panel">
+    <p class="dg__panel-title">{es ? 'Dónde se ubica Caido en cada prueba' : 'Where Caido sits in every test'}</p>
+    <div class="hflow">
+      <div><b>{es ? 'Navegador' : 'Browser'}</b><span>{es ? 'flujo normal' : 'normal flow'}</span></div>
+      <em>→</em>
+      <div class="is-key"><b>Caido</b><span>{es ? 'intercepta y modifica' : 'intercepts & modifies'}</span></div>
+      <em>→</em>
+      <div><b>{es ? 'Servidor' : 'Server'}</b><span>{es ? '¿valida o confía?' : 'validates or trusts?'}</span></div>
+    </div>
+  </div>
+
+  <div class="dg__panel">
+    <p class="dg__panel-title">{es ? 'Ejemplo: confianza excesiva en controles del cliente' : 'Example: excessive trust in client-side controls'}</p>
+    <div class="dg__cols">
+      <div class="dg__log req">POST /cart HTTP/2
+Host: &lt;lab&gt;.web-security-academy.net
+
+productId=1&amp;quantity=1&amp;price=<del>133700</del> <ins>1</ins></div>
+      <p style="font-size:0.9rem;line-height:1.6;color:#b7c6d1;margin:0">{es
+        ? 'El precio viaja en la petición y el servidor lo acepta sin compararlo con su catálogo. Cambiar un solo parámetro permite comprar el producto por centavos. Mitigación: calcular siempre el precio en el servidor.'
+        : 'The price travels in the request and the server accepts it without checking its catalog. Changing one parameter buys the item for cents. Fix: always compute the price server-side.'}</p>
+    </div>
+    <p class="dg__cap" style="margin-top:1rem">{es ? 'Petición simplificada.' : 'Simplified request.'}</p>
+  </div>
+
+  <div class="dg__panel">
+    <p class="dg__panel-title">{es ? 'Estructura de cada writeup' : 'Structure of each writeup'}</p>
+    <ol class="dg__steps">
+      <li class="dg__step"><div><h4>{es ? 'Reconocimiento' : 'Recon'}</h4><p>{es ? 'Mapear la funcionalidad y qué datos controla el cliente.' : 'Map the feature and which data the client controls.'}</p></div></li>
+      <li class="dg__step"><div><h4>{es ? 'Interceptar' : 'Intercept'}</h4><p>{es ? 'Capturar la petición relevante en Caido.' : 'Capture the relevant request in Caido.'}</p></div></li>
+      <li class="dg__step"><div><h4>{es ? 'Explotar' : 'Exploit'}</h4><p>{es ? 'Manipular parámetros y confirmar el impacto.' : 'Tamper with parameters and confirm the impact.'}</p></div></li>
+      <li class="dg__step"><div><h4>{es ? 'Mitigar' : 'Mitigate'}</h4><p>{es ? 'Explicar la causa raíz y cómo corregirla en el código.' : 'Explain the root cause and how to fix it in code.'}</p></div></li>
+    </ol>
+  </div>
+</div>

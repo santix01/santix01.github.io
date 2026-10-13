@@ -1,0 +1,93 @@
+---
+import './diagram.css';
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const es = lang === 'es';
+---
+<div class="dg">
+  <div class="dg__panel">
+    <p class="dg__panel-title">{es ? 'Ciclo de un evento, del kernel a la alerta' : 'Life of an event, from kernel to alert'}</p>
+    <ol class="dg__steps">
+      <li class="dg__step">
+        <div>
+          <h4>{es ? 'Regla de auditoría en el kernel' : 'Kernel audit rule'}<span class="dg__file">setup_samurai.sh</span></h4>
+          <p>{es
+            ? 'El instalador registra una regla de vigilancia sobre la ruta protegida: toda escritura o cambio de atributos genera un evento con la clave samurai_watch.'
+            : 'The installer registers a watch rule on the protected path: every write or attribute change emits an event tagged samurai_watch.'}</p>
+          <code class="dg__code">-w /home/&lt;usuario&gt;/Escritorio/ -p wa -k samurai_watch</code>
+        </div>
+      </li>
+      <li class="dg__step">
+        <div>
+          <h4>{es ? 'auditd escribe los registros' : 'auditd writes the records'}<span class="dg__file">/var/log/audit/audit.log</span></h4>
+          <p>{es
+            ? 'Cada operación produce varios registros (SYSCALL, PATH…) que comparten el mismo ID de evento.'
+            : 'Each operation produces several records (SYSCALL, PATH…) sharing the same event ID.'}</p>
+        </div>
+      </li>
+      <li class="dg__step">
+        <div>
+          <h4>{es ? 'El agente sigue el log en tiempo real' : 'The agent tails the log in real time'}<span class="dg__file">samurai_agent.py</span></h4>
+          <p>{es
+            ? 'Lee audit.log con tail -F y agrupa los registros por ID hasta tener archivo, operación, usuario y proceso.'
+            : 'Reads audit.log with tail -F and groups records by ID until it has the file, operation, user and process.'}</p>
+        </div>
+      </li>
+      <li class="dg__step">
+        <div>
+          <h4>{es ? 'Resuelve al actor real (AUID)' : 'Resolves the real actor (AUID)'}</h4>
+          <p>{es
+            ? 'Prioriza el AUID, que se fija al iniciar sesión y no cambia con sudo. Solo si no existe (4294967295) usa el UID. Luego lo traduce a nombre de usuario.'
+            : 'Prefers the AUID, set at login and unchanged by sudo. Only when it is unset (4294967295) does it fall back to the UID, then maps it to a username.'}</p>
+          <code class="dg__code">actor = auid if auid != "4294967295" else uid</code>
+        </div>
+      </li>
+      <li class="dg__step">
+        <div>
+          <h4>{es ? 'Clasifica la gravedad' : 'Ranks the severity'}</h4>
+          <table class="dg__rules">
+            <thead><tr><th>nametype</th><th>{es ? 'Evento' : 'Event'}</th><th>{es ? 'Gravedad' : 'Severity'}</th></tr></thead>
+            <tbody>
+              <tr><td>CREATE</td><td>{es ? 'Creado' : 'Created'}</td><td><span class="sev" style="--c:#5fd38a">{es ? 'Baja' : 'Low'}</span></td></tr>
+              <tr><td>NORMAL</td><td>{es ? 'Modificado' : 'Modified'}</td><td><span class="sev" style="--c:#f0d34c">{es ? 'Media' : 'Medium'}</span></td></tr>
+              <tr><td>DELETE</td><td>{es ? 'Eliminado' : 'Deleted'}</td><td><span class="sev" style="--c:#ef7b6c">{es ? 'Alta' : 'High'}</span></td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:0.6rem">{es ? 'Descarta archivos temporales de editores (.swp, ~) para evitar ruido.' : 'Drops editor temp files (.swp, ~) to cut noise.'}</p>
+        </div>
+      </li>
+      <li class="dg__step">
+        <div>
+          <h4>{es ? 'Notifica al SOC' : 'Notifies the SOC'}<span class="dg__file">Discord webhook</span></h4>
+          <p>{es
+            ? 'Envía una alerta con color por gravedad, archivo, actor, proceso y host. El servicio corre en systemd con reinicio automático y avisa también cuando el sensor se activa o se detiene.'
+            : 'Sends an alert colored by severity with file, actor, process and host. The service runs under systemd with auto-restart and also reports when the sensor starts or stops.'}</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <div class="dg__panel">
+    <p class="dg__panel-title">{es ? 'Por qué importa el AUID: alguien borra un archivo usando sudo' : 'Why AUID matters: someone deletes a file with sudo'}</p>
+    <div class="dg__cols">
+      <div>
+        <div class="dg__log">type=SYSCALL msg=audit(<span class="id">1739.512:842</span>): syscall=unlinkat <mark>auid=1000</mark> uid=0 comm="rm" key="samurai_watch"</div>
+        <div class="dg__log">type=PATH msg=audit(<span class="id">1739.512:842</span>): name="/home/ana/Escritorio/nomina.xlsx" <mark>nametype=DELETE</mark></div>
+        <p class="dg__join">{es ? 'mismo ID de evento → se correlacionan' : 'same event ID → correlated'}</p>
+      </div>
+      <div class="dg__alert" style="--c:#ef7b6c">
+        <strong>{es ? 'Alerta crítica: archivo eliminado' : 'Critical alert: file deleted'}</strong>
+        <dl>
+          <dt>{es ? 'Objeto' : 'Object'}</dt><dd>/home/ana/Escritorio/nomina.xlsx</dd>
+          <dt>{es ? 'Actor (AUID)' : 'Actor (AUID)'}</dt><dd>ana</dd>
+          <dt>{es ? 'Proceso' : 'Process'}</dt><dd>rm</dd>
+        </dl>
+        <small>{es
+          ? 'Un log común mostraría uid=0 (root). El AUID revela que fue la usuaria ana.'
+          : 'A plain log would show uid=0 (root). The AUID reveals it was user ana.'}</small>
+      </div>
+    </div>
+    <p class="dg__cap" style="margin-top:1rem">{es ? 'Registros de ejemplo simplificados.' : 'Simplified example records.'}</p>
+  </div>
+</div>

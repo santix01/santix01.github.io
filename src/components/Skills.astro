@@ -1,0 +1,48 @@
+---
+import { ui, type Lang } from '../i18n/ui';
+import { skills } from '../data/site';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang].skills;
+const label = (i: string | { es: string; en: string }) => (typeof i === 'string' ? i : i[lang]);
+---
+<section id="habilidades" class="section skills" aria-labelledby="skills-title">
+  <div class="wrap skills__grid">
+    <div class="skills__intro">
+      <h2 id="skills-title" data-reveal>{t.title}</h2>
+      <p class="muted" data-reveal>{t.text}</p>
+    </div>
+    <div class="skills__groups">
+      {skills.map((g) => (
+        <div class="group" data-reveal>
+          <h3 class="group__title">{g.group[lang]}</h3>
+          <ul class="group__items">
+            {g.items.map((i) => <li>{label(i)}</li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .skills { border-top: 1px solid var(--line); }
+  .skills__grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: clamp(2rem, 6vw, 6rem); align-items: start; }
+  .skills__intro { display: grid; gap: 1rem; position: sticky; top: 100px; }
+  .skills__intro p { max-width: 36ch; }
+  .skills__groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem 2rem; }
+  .group__title {
+    font-size: var(--step-0); padding-bottom: 0.75rem; margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--amber); display: inline-block;
+  }
+  .group__items { list-style: none; padding: 0; margin: 0; }
+  .group__items li {
+    padding: 0.6rem 0; border-bottom: 1px solid var(--bg-3);
+    font: 400 0.95rem/1.4 var(--mono); color: #c6d3dc;
+  }
+  @media (max-width: 860px) {
+    .skills__grid { grid-template-columns: 1fr; }
+    .skills__intro { position: static; }
+  }
+  @media (max-width: 520px) { .skills__groups { grid-template-columns: 1fr; } }
+</style>
