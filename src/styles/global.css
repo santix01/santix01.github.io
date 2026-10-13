@@ -1,0 +1,146 @@
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-sans-condensed/500.css';
+@import '@fontsource/ibm-plex-sans-condensed/600.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+
+:root {
+  --bg: #0e1821;
+  --bg-2: #132230;
+  --bg-3: #1a2d3d;
+  --line: #24394a;
+  --text: #e4ecf1;
+  --muted: #8fa3b3;
+  --amber: #f0b44c;
+  --teal: #6fd1c1;
+  --red: #ef7b6c;
+
+  --display: 'IBM Plex Sans Condensed', 'Arial Narrow', sans-serif;
+  --body: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3125rem;
+  --step-2: 1.75rem;
+  --step-3: clamp(2.25rem, 4.5vw, 3.25rem);
+  --step-4: clamp(3.25rem, 9vw, 7rem);
+
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --max: 1180px;
+  --radius-lg: 14px;
+  --radius-sm: 6px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Fine coordinate grid, fading out below the hero */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(to right, rgba(143, 163, 179, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(143, 163, 179, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 90% 70% at 70% 0%, #000 30%, transparent 75%);
+  pointer-events: none;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+::selection { background: var(--amber); color: var(--bg); }
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.05; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: var(--step-3); }
+h3 { font-size: var(--step-1); line-height: 1.25; font-family: var(--body); letter-spacing: 0; }
+p { margin: 0; }
+
+.wrap { width: min(100% - 2 * var(--gutter), var(--max)); margin-inline: auto; }
+.section { padding-block: clamp(4.5rem, 10vw, 8rem); }
+.section-head { display: grid; gap: 0.75rem; margin-bottom: clamp(2rem, 5vw, 3.5rem); max-width: 62ch; }
+.section-head p { color: var(--muted); }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); }
+
+.skip {
+  position: absolute; left: 1rem; top: -4rem; z-index: 100;
+  background: var(--amber); color: var(--bg); padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-weight: 600;
+}
+.skip:focus { top: 1rem; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font: 500 var(--step-0)/1 var(--body);
+  padding: 0.9rem 1.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease), background 0.25s var(--ease), color 0.25s var(--ease);
+}
+.btn:hover { border-color: var(--muted); }
+.btn--primary { background: var(--amber); border-color: var(--amber); color: #1b1407; }
+.btn--primary:hover { background: #f7c66e; border-color: #f7c66e; }
+.btn svg { width: 1.05em; height: 1.05em; flex: none; }
+
+.tag {
+  display: inline-block;
+  font: 400 var(--step--1)/1 var(--mono);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.4rem 0.7rem;
+}
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* Scroll reveal: only hidden once JS confirms it will animate */
+.js-motion [data-reveal] { opacity: 0; transform: translateY(24px); }
+
+/* Custom cursor (desktop, fine pointers only) */
+.cursor {
+  position: fixed; left: 0; top: 0; z-index: 90;
+  width: 28px; height: 28px; margin: -14px 0 0 -14px;
+  border: 1px solid var(--amber); border-radius: 50%;
+  pointer-events: none; opacity: 0;
+  transition: width 0.25s var(--ease), height 0.25s var(--ease), margin 0.25s var(--ease), opacity 0.3s, background 0.25s;
+}
+.cursor.is-on { opacity: 0.9; }
+.cursor.is-hover { width: 48px; height: 48px; margin: -24px 0 0 -24px; background: rgba(240, 180, 76, 0.08); }
+@media (hover: none), (pointer: coarse) { .cursor { display: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  .cursor { display: none; }
+}

@@ -1,0 +1,181 @@
+---
+import { ui, projectHref, homeHref, type Lang } from '../i18n/ui';
+import { profile, certs, about } from '../data/site';
+import { projects, categories } from '../data/projects';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const es = lang === 'es';
+
+// Todo lo que la terminal puede responder se genera aquí, en el idioma de la página.
+const data = {
+  lang,
+  user: 'visitante',
+  host: 'santix01',
+  boot: 'whoami',
+  home: homeHref(lang),
+  alt: es ? '/en/' : '/',
+  cv: profile.cv[lang],
+  email: profile.email,
+  whoami: [
+    `${profile.name}`,
+    `${profile.role[lang]} · ${profile.location[lang]}`,
+    es ? 'Pentesting · ISO 27001/27005 · herramientas propias' : 'Pentesting · ISO 27001/27005 · own tooling',
+    '',
+    es ? 'Escribe help para ver los comandos.' : 'Type help to see the commands.',
+  ],
+  help: es
+    ? [
+        'whoami            quién soy',
+        'ls                lista los proyectos',
+        'cat <proyecto>    resumen de un proyecto',
+        'open <proyecto>   abre el caso completo',
+        'certs             certificaciones verificables',
+        'skills            áreas de trabajo',
+        'contact           cómo contactarme',
+        'cv                descarga mi CV',
+        'lang              switch to English',
+        'clear             limpia la pantalla',
+      ]
+    : [
+        'whoami            who I am',
+        'ls                list projects',
+        'cat <project>     project summary',
+        'open <project>    open the full case',
+        'certs             verifiable certifications',
+        'skills            focus areas',
+        'contact           how to reach me',
+        'cv                download my CV',
+        'lang              cambiar a español',
+        'clear             clear the screen',
+      ],
+  projects: projects.map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    cat: categories[p.category][lang],
+    summary: p.summary[lang],
+    stack: p.stack.join(', '),
+    repo: p.repo,
+    href: projectHref(lang, p.slug),
+  })),
+  certs: certs.map((c) => c.name),
+  skills: about.focus.map((f) => f[lang]),
+  links: { github: profile.links.github, linkedin: profile.links.linkedin },
+  msg: {
+    notFound: es ? 'comando no encontrado' : 'command not found',
+    hintHelp: es ? 'Escribe help.' : 'Type help.',
+    noProject: es ? 'No existe ese proyecto. Prueba: ls' : 'No such project. Try: ls',
+    usage: es ? 'uso' : 'usage',
+    opening: es ? 'Abriendo' : 'Opening',
+    noCv: es ? 'El CV estará disponible pronto. Mientras tanto: contact' : 'CV coming soon. Meanwhile: contact',
+    sudo: es ? 'Buen intento. Este intento quedó registrado en auth.log.' : 'Nice try. This attempt has been logged to auth.log.',
+    rm: es ? 'Operación denegada: el sitio está en modo solo lectura.' : 'Operation denied: this site is read-only.',
+    switching: es ? 'Cambiando a English…' : 'Switching to Español…',
+  },
+};
+---
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <p class="hero__status" data-hero><span class="hero__dot" aria-hidden="true"></span>{profile.role[lang]}</p>
+      <h1 id="hero-title" class="hero__name" data-hero>
+        <span>Santiago</span>
+        <span>Avendaño López</span>
+      </h1>
+      <p class="hero__intro" data-hero>{t.hero.intro}</p>
+      <div class="hero__cta" data-hero>
+        <a class="btn btn--primary" href="#proyectos">{t.hero.ctaProjects}</a>
+        <a class="btn" href="#contacto">{t.hero.ctaContact}</a>
+      </div>
+    </div>
+
+    <div class="term" data-hero data-terminal={JSON.stringify(data)}>
+      <div class="term__bar">
+        <span class="term__lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="term__title">visitante@santix01: ~</span>
+      </div>
+      <div class="term__screen" role="log" aria-live="polite" aria-label={es ? 'Salida de la terminal' : 'Terminal output'}></div>
+      <form class="term__form" autocomplete="off">
+        <label class="term__prompt" for="term-input"><span class="u">visitante@santix01:</span><span class="p">~</span>$</label>
+        <input id="term-input" class="term__input" type="text" spellcheck="false" autocapitalize="off" aria-describedby="term-hint" />
+      </form>
+      <p id="term-hint" class="term__hint">{t.hero.hint}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { padding-block: clamp(3rem, 8vw, 6.5rem) clamp(4rem, 8vw, 6rem); }
+  .hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+  .hero__status {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    color: var(--muted); font-size: var(--step--1); font-weight: 500;
+    margin-bottom: 1.5rem;
+  }
+  .hero__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 4px rgba(111, 209, 193, 0.15); }
+  .hero__name {
+    font-size: var(--step-4);
+    line-height: 0.92;
+    letter-spacing: -0.025em;
+    display: grid;
+  }
+  .hero__name span:last-child { color: var(--muted); font-weight: 500; }
+  .hero__intro { margin-top: 1.75rem; font-size: var(--step-1); line-height: 1.5; max-width: 34ch; color: #c6d3dc; }
+  .hero__cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2.25rem; }
+
+  /* Terminal */
+  .term {
+    background: #0a131b;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(240, 180, 76, 0.04);
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    display: flex; flex-direction: column;
+    height: clamp(380px, 52vh, 470px);
+    overflow: hidden;
+  }
+  .term__bar { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--line); background: var(--bg-2); }
+  .term__lights { display: flex; gap: 6px; }
+  .term__lights i { width: 11px; height: 11px; border-radius: 50%; background: var(--bg-3); border: 1px solid var(--line); }
+  .term__title { color: var(--muted); font-size: 0.8rem; }
+  .term__screen { flex: 1; overflow-y: auto; padding: 1rem 1.1rem 0.25rem; line-height: 1.65; overscroll-behavior: contain; }
+  .term__form { display: flex; align-items: center; gap: 0.6rem; padding: 0.15rem 1.1rem 0.9rem; }
+  .term__prompt { white-space: nowrap; color: var(--muted); }
+  .term__prompt .u { color: var(--teal); }
+  .term__prompt .p { color: var(--amber); }
+  .term__input {
+    flex: 1; min-width: 0; background: transparent; border: 0; outline: 0;
+    color: var(--text); font: inherit; caret-color: var(--amber);
+  }
+  .term__hint { padding: 0.55rem 1.1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.75rem; font-family: var(--body); }
+  .term:focus-within { border-color: #365169; }
+
+  :global(.term__screen .ln) { white-space: pre-wrap; word-break: break-word; min-height: 1.65em; }
+  :global(.term__screen .cmd) { color: var(--text); }
+  :global(.term__screen .cmd .u) { color: var(--teal); }
+  :global(.term__screen .cmd .p) { color: var(--amber); }
+  :global(.term__screen .out) { color: #b7c6d1; }
+  :global(.term__screen .hl) { color: var(--amber); }
+  :global(.term__screen .err) { color: var(--red); }
+  :global(.term__screen a) { color: var(--teal); text-underline-offset: 3px; }
+
+  @media (max-width: 920px) {
+    .hero__grid { grid-template-columns: 1fr; }
+    .term { height: 380px; }
+  }
+  @media (max-width: 480px) {
+    .term { font-size: 0.8rem; }
+    .term__prompt .u { display: none; }
+  }
+</style>
+
+<script>
+  import { initTerminal } from '../scripts/terminal';
+  document.querySelectorAll<HTMLElement>('[data-terminal]').forEach(initTerminal);
+</script>

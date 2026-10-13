@@ -1,0 +1,94 @@
+---
+import { ui, homeHref, type Lang } from '../i18n/ui';
+interface Props { lang: Lang; altHref: string }
+const { lang, altHref } = Astro.props;
+const t = ui[lang];
+const home = homeHref(lang);
+const items = [
+  ['perfil', t.nav.about],
+  ['proyectos', t.nav.projects],
+  ['certificaciones', t.nav.certs],
+  ['writeups', t.nav.writeups],
+  ['contacto', t.nav.contact],
+] as const;
+---
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href={home} aria-label="Inicio">
+      <span class="nav__mark" aria-hidden="true">sa</span>
+      <span class="nav__name">Santiago Avendaño</span>
+    </a>
+    <nav aria-label={lang === 'es' ? 'Principal' : 'Main'}>
+      <button class="nav__toggle" aria-expanded="false" aria-controls="nav-list">
+        <span>{lang === 'es' ? 'Menú' : 'Menu'}</span>
+      </button>
+      <ul id="nav-list" class="nav__list">
+        {items.map(([id, label]) => <li><a href={`${home}#${id}`}>{label}</a></li>)}
+        <li><a class="nav__lang" href={altHref} hreflang={lang === 'es' ? 'en' : 'es'} lang={lang === 'es' ? 'en' : 'es'}>{t.switchLang}</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(14, 24, 33, 0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s;
+  }
+  :global(.is-scrolled) .nav { border-bottom-color: var(--line); }
+  .nav__inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  .nav__brand { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; font-weight: 500; }
+  .nav__mark {
+    display: grid; place-items: center; width: 34px; height: 34px;
+    border: 1px solid var(--amber); border-radius: 8px; color: var(--amber);
+    font: 500 0.95rem/1 var(--mono);
+  }
+  .nav__list { display: flex; gap: 0.25rem; list-style: none; margin: 0; padding: 0; align-items: center; }
+  .nav__list a {
+    display: block; padding: 0.5rem 0.8rem; border-radius: 999px;
+    text-decoration: none; color: var(--muted); font-size: var(--step--1); font-weight: 500;
+    transition: color 0.2s, background 0.2s;
+  }
+  .nav__list a:hover { color: var(--text); background: var(--bg-2); }
+  .nav__list .nav__lang { color: var(--text); border: 1px solid var(--line); margin-left: 0.5rem; }
+  .nav__toggle { display: none; }
+
+  @media (max-width: 860px) {
+    .nav__name { display: none; }
+    .nav__toggle {
+      display: inline-flex; background: none; border: 1px solid var(--line); color: var(--text);
+      font: 500 var(--step--1)/1 var(--body); padding: 0.6rem 1rem; border-radius: 999px; cursor: pointer;
+    }
+    .nav__list {
+      position: absolute; left: 0; right: 0; top: 68px;
+      flex-direction: column; align-items: stretch; gap: 0;
+      background: var(--bg); border-bottom: 1px solid var(--line);
+      padding: 0.5rem var(--gutter) 1.25rem;
+      display: none;
+    }
+    .nav__list.is-open { display: flex; }
+    .nav__list a { font-size: var(--step-0); padding: 0.9rem 0; border-radius: 0; border-bottom: 1px solid var(--bg-3); }
+    .nav__list a:hover { background: none; }
+    .nav__list .nav__lang { border: 0; margin: 0; color: var(--amber); }
+  }
+</style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.nav__toggle');
+  const list = document.getElementById('nav-list');
+  btn?.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', String(open));
+    list?.classList.toggle('is-open', open);
+  });
+  list?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) {
+      btn?.setAttribute('aria-expanded', 'false');
+      list.classList.remove('is-open');
+    }
+  });
+</script>

@@ -1,0 +1,8 @@
+# Politica de divulgacion responsable / Responsible disclosure policy
+# Si encuentras una vulnerabilidad en este sitio o en mis proyectos, escribeme.
+# If you find a vulnerability in this site or my projects, please reach out.
+
+Contact: mailto:santiagoavendano15@gmail.com
+Expires: 2027-10-13T00:00:00.000Z
+Preferred-Languages: es, en
+Canonical: https://santix01.github.io/.well-known/security.txt

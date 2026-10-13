@@ -1,0 +1,103 @@
+---
+import { ui, type Lang } from '../i18n/ui';
+import { about, experience, education } from '../data/site';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+---
+<section id="perfil" class="section about" aria-labelledby="about-title">
+  <div class="wrap about__grid">
+    <div>
+      <h2 id="about-title" data-reveal>{t.about.title}</h2>
+      <p class="about__lead" data-reveal>{about.lead[lang]}</p>
+      <p class="about__body muted" data-reveal>{about.body[lang]}</p>
+    </div>
+    <div class="about__side">
+      <dl class="stats" data-reveal>
+        {about.stats.map((s) => (
+          <div class="stat">
+            <dt>{s.label[lang]}</dt>
+            <dd><span data-count={s.value}>{s.value}</span>{s.suffix}</dd>
+          </div>
+        ))}
+      </dl>
+      <div data-reveal>
+        <h3 class="about__focus-title">{t.about.focus}</h3>
+        <ul class="focus">
+          {about.focus.map((f) => <li>{f[lang]}</li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap timeline" id="trayectoria">
+    <div class="timeline__col">
+      <h3 class="timeline__title" data-reveal>{t.experience.work}</h3>
+      <ol class="tl">
+        {experience.map((e) => (
+          <li class="tl__item" data-reveal>
+            <p class="tl__period">{e.period[lang]}</p>
+            <div>
+              <p class="tl__role">{e.title[lang]}</p>
+              <p class="tl__org">{e.org}</p>
+              <p class="tl__text muted">{e.text[lang]}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+    <div class="timeline__col">
+      <h3 class="timeline__title" data-reveal>{t.experience.education}</h3>
+      <ul class="edu">
+        {education.map((e) => (
+          <li data-reveal>
+            <p class="tl__role">{e.title[lang]}</p>
+            {e.org && <p class="tl__org">{e.org}</p>}
+            {e.note[lang] && <p class="tl__text muted">{e.note[lang]}</p>}
+          </li>
+        ))}
+      </ul>
+      <p class="edu__note muted" data-reveal>{t.experience.proofs}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about { border-top: 1px solid var(--line); }
+  .about__grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: clamp(2.5rem, 6vw, 6rem); align-items: start; }
+  .about__lead { font-family: var(--display); font-weight: 500; font-size: var(--step-2); line-height: 1.25; margin-top: 1.75rem; max-width: 30ch; }
+  .about__body { margin-top: 1.25rem; max-width: 56ch; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0 0 2.5rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .stat { padding: 1.25rem 0; display: flex; flex-direction: column-reverse; gap: 0.35rem; }
+  .stat + .stat { padding-left: 1.25rem; border-left: 1px solid var(--line); }
+  .stat dd { margin: 0; font: 600 clamp(2.25rem, 5vw, 3rem)/1 var(--display); color: var(--amber); font-variant-numeric: tabular-nums; }
+  .stat dt { font-size: var(--step--1); color: var(--muted); line-height: 1.35; }
+  .about__focus-title { font-size: var(--step-0); margin-bottom: 0.75rem; }
+  .focus { list-style: none; padding: 0; margin: 0; }
+  .focus li { padding: 0.7rem 0; border-bottom: 1px solid var(--bg-3); display: flex; gap: 0.75rem; align-items: baseline; }
+  .focus li::before { content: ''; flex: none; width: 6px; height: 6px; border-radius: 1px; background: var(--teal); transform: translateY(-2px); }
+
+  .timeline { display: grid; grid-template-columns: 1.3fr 1fr; gap: clamp(2.5rem, 6vw, 6rem); margin-top: clamp(4rem, 8vw, 6rem); }
+  .timeline__title { font-size: var(--step-0); color: var(--muted); font-weight: 500; margin-bottom: 1.5rem; }
+  .tl { list-style: none; padding: 0; margin: 0; position: relative; }
+  .tl::before { content: ''; position: absolute; left: 0; top: 0.5rem; bottom: 0.5rem; width: 1px; background: var(--line); }
+  .tl__item { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1rem; padding: 0 0 2rem 1.5rem; position: relative; }
+  .tl__item::before { content: ''; position: absolute; left: -4px; top: 0.55rem; width: 9px; height: 9px; border-radius: 50%; background: var(--bg); border: 1px solid var(--muted); }
+  .tl__item:first-child::before { background: var(--amber); border-color: var(--amber); }
+  .tl__period { font: 400 var(--step--1)/1.6 var(--mono); color: var(--muted); padding-top: 0.15rem; }
+  .tl__role { font-weight: 600; }
+  .tl__org { color: var(--amber); font-size: var(--step--1); font-weight: 500; }
+  .tl__text { margin-top: 0.4rem; font-size: 0.95rem; max-width: 52ch; }
+  .edu { list-style: none; padding: 0; margin: 0; }
+  .edu li { padding: 0 0 1.4rem; margin-bottom: 1.4rem; border-bottom: 1px solid var(--bg-3); }
+  .edu__note { font-size: var(--step--1); }
+
+  @media (max-width: 860px) {
+    .about__grid, .timeline { grid-template-columns: 1fr; }
+    .tl__item { grid-template-columns: 1fr; gap: 0.25rem; }
+  }
+  @media (max-width: 420px) {
+    .stats { grid-template-columns: 1fr; }
+    .stat + .stat { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+  }
+</style>

@@ -1,0 +1,135 @@
+---
+import Base from '../layouts/Base.astro';
+import { ui, homeHref, projectHref, type Lang } from '../i18n/ui';
+import { projects, categories, type Project } from '../data/projects';
+interface Props { lang: Lang; project: Project }
+const { lang, project: p } = Astro.props;
+const t = ui[lang].project;
+const other: Lang = lang === 'es' ? 'en' : 'es';
+const idx = projects.findIndex((x) => x.slug === p.slug);
+const next = projects[(idx + 1) % projects.length];
+---
+<Base lang={lang} title={p.title} description={p.summary[lang]} altHref={projectHref(other, p.slug)}>
+  <article class="case">
+    <header class="wrap case__head">
+      <a class="case__back" href={`${homeHref(lang)}#proyectos`}>← {t.back}</a>
+      <p class="case__meta" data-hero><span>{categories[p.category][lang]}</span><span class="muted">{p.status[lang]}</span></p>
+      <h1 class="case__title" data-hero>{p.title}</h1>
+      <p class="case__summary" data-hero>{p.summary[lang]}</p>
+      <div class="case__cta" data-hero>
+        <a class="btn btn--primary" href={p.repo} target="_blank" rel="noopener">{t.repo}</a>
+        {p.demo && <a class="btn" href={p.demo} target="_blank" rel="noopener">{t.demo}</a>}
+      </div>
+    </header>
+
+    <div class="wrap case__layout">
+      <aside class="case__aside" data-reveal>
+        <h2 class="case__label">{t.stack}</h2>
+        <ul class="case__stack">{p.stack.map((s) => <li class="tag">{s}</li>)}</ul>
+      </aside>
+
+      <div class="case__body">
+        <section data-reveal>
+          <h2>{t.problem}</h2>
+          <p>{p.problem[lang]}</p>
+        </section>
+
+        <section data-reveal>
+          <h2>{t.solution}</h2>
+          <p>{p.solution[lang]}</p>
+        </section>
+
+        {p.flow && (
+          <section data-reveal>
+            <h2>{t.flow}</h2>
+            <ol class="flow">{p.flow.map((s) => <li>{s}</li>)}</ol>
+          </section>
+        )}
+
+        {p.terminal && (
+          <section data-reveal>
+            <h2>{t.usage}</h2>
+            <pre class="console"><code>{p.terminal.join('\n')}</code></pre>
+          </section>
+        )}
+
+        <section data-reveal>
+          <h2>{t.highlights}</h2>
+          <ul class="points">{p.highlights[lang].map((h) => <li>{h}</li>)}</ul>
+        </section>
+
+        {p.images.length > 0 && (
+          <section data-reveal>
+            <h2>{t.gallery}</h2>
+            <div class="gallery">
+              {p.images.map((img) => (
+                <figure>
+                  <img src={img.src} alt={img.alt[lang]} loading="lazy" decoding="async" />
+                  <figcaption class="muted">{img.alt[lang]}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {p.limits[lang].length > 0 && (
+          <section data-reveal>
+            <h2>{t.limits}</h2>
+            <ul class="points points--limits">{p.limits[lang].map((h) => <li>{h}</li>)}</ul>
+          </section>
+        )}
+      </div>
+    </div>
+
+    <nav class="wrap case__next" aria-label={t.next}>
+      <a href={projectHref(lang, next.slug)}>
+        <span class="muted">{t.next}</span>
+        <span class="case__next-title">{next.title}</span>
+      </a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .case__head { padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(3rem, 6vw, 4.5rem); border-bottom: 1px solid var(--line); }
+  .case__back { display: inline-block; color: var(--muted); text-decoration: none; font-size: var(--step--1); font-weight: 500; margin-bottom: 2.5rem; }
+  .case__back:hover { color: var(--text); }
+  .case__meta { display: flex; gap: 1.25rem; font-size: var(--step--1); font-weight: 500; color: var(--teal); margin-bottom: 1rem; }
+  .case__title { font-size: var(--step-4); line-height: 0.95; letter-spacing: -0.025em; max-width: 14ch; }
+  .case__summary { margin-top: 1.5rem; font-size: var(--step-1); line-height: 1.5; max-width: 44ch; color: #c6d3dc; }
+  .case__cta { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 2rem; }
+
+  .case__layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: clamp(2rem, 6vw, 5rem); padding-block: clamp(3rem, 7vw, 5rem); }
+  .case__aside { position: sticky; top: 100px; align-self: start; }
+  .case__label { font: 500 var(--step--1)/1.4 var(--body); color: var(--muted); margin-bottom: 0.75rem; }
+  .case__stack { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .case__body { display: grid; gap: clamp(2.5rem, 5vw, 3.5rem); max-width: 68ch; }
+  .case__body h2 { font-size: var(--step-2); margin-bottom: 1rem; }
+  .case__body p { color: #c6d3dc; line-height: 1.7; }
+
+  .flow { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font: 400 var(--step--1)/1 var(--mono); }
+  .flow li { padding: 0.65rem 0.9rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg-2); }
+  .flow li:last-child { border-color: var(--amber); color: var(--amber); }
+  .flow li + li::before { content: '→'; color: var(--muted); margin: 0 0.9rem 0 -0.9rem; position: relative; left: -0.6rem; }
+
+  .console { margin: 0; padding: 1.25rem; background: #0a131b; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow-x: auto; font: 400 0.875rem/1.8 var(--mono); color: #b7c6d1; }
+
+  .points { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
+  .points li { padding: 0.9rem 0 0.9rem 1.5rem; border-bottom: 1px solid var(--line); position: relative; color: #c6d3dc; }
+  .points li::before { content: ''; position: absolute; left: 0; top: 1.45rem; width: 8px; height: 1px; background: var(--teal); }
+  .points--limits li::before { background: var(--amber); }
+
+  .gallery { display: grid; gap: 1.5rem; }
+  .gallery img { border: 1px solid var(--line); border-radius: var(--radius-lg); }
+  .gallery figcaption { margin-top: 0.6rem; font-size: var(--step--1); }
+
+  .case__next { border-top: 1px solid var(--line); padding-block: 3rem 4rem; }
+  .case__next a { display: grid; gap: 0.5rem; text-decoration: none; }
+  .case__next-title { font: 600 var(--step-3)/1 var(--display); transition: color 0.25s; }
+  .case__next a:hover .case__next-title { color: var(--amber); }
+
+  @media (max-width: 860px) {
+    .case__layout { grid-template-columns: 1fr; }
+    .case__aside { position: static; }
+  }
+</style>

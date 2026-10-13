@@ -1,0 +1,26 @@
+---
+import { ui, type Lang } from '../i18n/ui';
+import { profile } from '../data/site';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+---
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <p>© {new Date().getFullYear()} {profile.name}</p>
+    <p class="muted">{t.footer.built} <span data-gh-repos hidden><span data-gh-count></span> {t.footer.repos}</span></p>
+    <ul>
+      <li><a href={profile.links.github} rel="me noopener" target="_blank">GitHub</a></li>
+      <li><a href={profile.links.linkedin} rel="me noopener" target="_blank">LinkedIn</a></li>
+      <li><a href="/.well-known/security.txt">{t.footer.security}</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .footer { border-top: 1px solid var(--line); padding-block: 2rem 2.5rem; font-size: var(--step--1); }
+  .footer__inner { display: flex; flex-wrap: wrap; gap: 0.75rem 2rem; align-items: center; justify-content: space-between; }
+  ul { display: flex; gap: 1.25rem; list-style: none; padding: 0; margin: 0; }
+  a { color: var(--muted); text-decoration: none; }
+  a:hover { color: var(--text); }
+</style>

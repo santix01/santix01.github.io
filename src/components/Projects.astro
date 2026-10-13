@@ -1,0 +1,139 @@
+---
+import { ui, projectHref, type Lang } from '../i18n/ui';
+import { projects, categories, type Project } from '../data/projects';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const used = [...new Set(projects.map((p) => p.category))];
+
+const preview = (p: Project) => {
+  if (p.flow) return { kind: 'flow', items: p.flow };
+  if (p.terminal) return { kind: 'cmd', items: [p.terminal[p.terminal.length - 1]] };
+  return { kind: 'cmd', items: ['caido › intercept › modify › forward'] };
+};
+---
+<section id="proyectos" class="section projects" aria-labelledby="projects-title">
+  <div class="wrap">
+    <div class="projects__head">
+      <h2 id="projects-title" data-reveal>{t.projects.title}</h2>
+      <div class="filters" role="group" aria-label={t.projects.filter} data-reveal>
+        <button type="button" class="chip" aria-pressed="true" data-filter="all">{t.projects.all}</button>
+        {used.map((c) => <button type="button" class="chip" aria-pressed="false" data-filter={c}>{categories[c][lang]}</button>)}
+      </div>
+    </div>
+
+    <ul class="cards">
+      {projects.map((p, i) => {
+        const pv = preview(p);
+        return (
+          <li class={`card ${i === 0 ? 'card--lead' : ''}`} data-category={p.category} data-reveal>
+            <article class="card__inner" data-tilt>
+              <div class={`card__preview card__preview--${pv.kind}`} aria-hidden="true">
+                {pv.kind === 'flow'
+                  ? pv.items.map((s, j) => <span class="node" style={`--i:${j}`}>{s}</span>)
+                  : pv.items.map((s) => <code>{s}</code>)}
+              </div>
+              <div class="card__body">
+                <p class="card__meta"><span>{categories[p.category][lang]}</span><span class="muted">{p.status[lang]}</span></p>
+                <h3 class="card__title"><a href={projectHref(lang, p.slug)}>{p.title}</a></h3>
+                <p class="card__summary muted">{p.summary[lang]}</p>
+                <ul class="card__stack">{p.stack.slice(0, 4).map((s) => <li class="tag">{s}</li>)}</ul>
+                <p class="card__links">
+                  <span class="card__read">{t.projects.read}</span>
+                  <a class="card__repo" href={p.repo} target="_blank" rel="noopener">{t.projects.repo}</a>
+                </p>
+              </div>
+            </article>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .projects { border-top: 1px solid var(--line); }
+  .projects__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 1.5rem; margin-bottom: clamp(2rem, 5vw, 3rem); }
+  .filters { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chip {
+    font: 500 var(--step--1)/1 var(--body); color: var(--muted);
+    background: transparent; border: 1px solid var(--line); border-radius: 999px;
+    padding: 0.6rem 1rem; cursor: pointer; transition: all 0.2s;
+  }
+  .chip:hover { color: var(--text); }
+  .chip[aria-pressed='true'] { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  .cards { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+  .card { perspective: 1000px; }
+  .card--lead { grid-row: span 2; }
+  .card.is-hidden { display: none; }
+  .card__inner {
+    position: relative; height: 100%;
+    display: flex; flex-direction: column;
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition: border-color 0.3s;
+    will-change: transform;
+  }
+  .card__inner:hover { border-color: #3a5468; }
+  .card__inner::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 50%), rgba(240, 180, 76, 0.07), transparent 60%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .card__inner:hover::after { opacity: 1; }
+
+  .card__preview {
+    min-height: 150px; padding: 1.5rem; border-bottom: 1px solid var(--line);
+    background: #0b141c; font-family: var(--mono); font-size: 0.8rem;
+    display: flex; align-items: center;
+  }
+  .card--lead .card__preview { min-height: 260px; }
+  .card__preview--cmd code { color: #b7c6d1; }
+  .card__preview--cmd code::before { content: ''; }
+  .card__preview--flow { flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.55rem; }
+  .node {
+    position: relative; padding: 0.45rem 0.8rem; border: 1px solid var(--line); border-radius: var(--radius-sm);
+    color: #b7c6d1; background: var(--bg-2); margin-left: calc(var(--i) * 1.4rem);
+  }
+  .node:last-child { border-color: var(--amber); color: var(--amber); }
+  .node + .node::before {
+    content: ''; position: absolute; left: -0.75rem; top: -0.6rem; width: 0.75rem; height: calc(0.6rem + 50%);
+    border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); border-bottom-left-radius: 4px;
+  }
+
+  .card__body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem; flex: 1; }
+  .card__meta { display: flex; justify-content: space-between; gap: 1rem; font-size: var(--step--1); font-weight: 500; color: var(--teal); }
+  .card__title { font-family: var(--display); font-size: var(--step-2); line-height: 1.1; }
+  .card__title a { text-decoration: none; }
+  .card__title a::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+  .card__summary { max-width: 52ch; }
+  .card__stack { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .card__links { margin-top: auto; padding-top: 0.5rem; display: flex; justify-content: space-between; align-items: center; font-size: var(--step--1); font-weight: 500; }
+  .card__read { color: var(--amber); }
+  .card__repo { position: relative; z-index: 2; color: var(--muted); text-underline-offset: 3px; }
+  .card__repo:hover { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .cards { grid-template-columns: 1fr; }
+    .card--lead { grid-row: auto; }
+    .card--lead .card__preview { min-height: 200px; }
+  }
+</style>
+
+<script>
+  const chips = document.querySelectorAll<HTMLButtonElement>('.chip[data-filter]');
+  const cards = document.querySelectorAll<HTMLElement>('.card[data-category]');
+  chips.forEach((chip) =>
+    chip.addEventListener('click', () => {
+      const f = chip.dataset.filter;
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+      cards.forEach((card) => {
+        const show = f === 'all' || card.dataset.category === f;
+        card.classList.toggle('is-hidden', !show);
+        card.classList.toggle('card--lead', show && f === 'all' && card === cards[0]);
+      });
+    }),
+  );
+</script>

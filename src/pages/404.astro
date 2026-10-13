@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import { ui } from '../i18n/ui';
+const t = ui.es.notFound;
+const e = ui.en.notFound;
+---
+<Base lang="es" title="404" altHref="/en/">
+  <section class="wrap nf">
+    <p class="nf__code mono">404</p>
+    <h1>{t.title}</h1>
+    <p class="muted">{t.text} <span lang="en">{e.text}</span></p>
+    <a class="btn btn--primary" href="/">{t.home}</a>
+  </section>
+</Base>
+
+<style>
+  .nf { padding-block: clamp(5rem, 15vw, 10rem); display: grid; gap: 1.25rem; justify-items: start; }
+  .nf__code { color: var(--amber); font-size: var(--step-2); }
+  .nf h1 { font-size: var(--step-3); }
+  .nf p { max-width: 50ch; }
+</style>
